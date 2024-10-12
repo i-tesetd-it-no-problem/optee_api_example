@@ -89,7 +89,7 @@ def create_host(parent_dir, pro_name, define_name):
 #include <stdlib.h>
 #include <tee_client_api.h>
 
-#include "{pro_name}.h"
+#include "../ta/include/{pro_name}.h"
 
 struct test_ctx {{
 	TEEC_Context ctx;
@@ -247,21 +247,14 @@ TEE_Result TA_InvokeCommandEntryPoint(void *sess_ctx, uint32_t cmd, uint32_t par
 #ifndef USER_TA_HEADER_DEFINES_H
 #define USER_TA_HEADER_DEFINES_H
 
-/* To get the TA_UUID define */
-#include <{pro_name}.h>
+#include <include/{pro_name}.h>
 
 #define TA_UUID\t\t\t{define_name}
 
-/*
- * TA properties: multi-instance TA, no specific attribute
- * TA_FLAG_EXEC_DDR is meaningless but mandated.
- */
-#define TA_FLAGS\t\t\tTA_FLAG_EXEC_DDR
+#define TA_FLAGS\t\t\t(TA_FLAG_EXEC_DDR | TA_FLAG_SINGLE_INSTANCE | TA_FLAG_MULTI_SESSION)
 
-/* Provisioned stack size */
 #define TA_STACK_SIZE\t\t(2 * 1024)
 
-/* Provisioned heap size for TEE_Malloc() and friends */
 #define TA_DATA_SIZE\t\t(32 * 1024)
 
 #endif /* USER_TA_HEADER_DEFINES_H */
