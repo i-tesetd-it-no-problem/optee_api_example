@@ -202,7 +202,7 @@ def create_ta(parent_dir, pro_name, define_name, define_str, uuid_str):
     ta_src_content = f"""#include <tee_internal_api.h>
 #include <tee_internal_api_extensions.h>
 
-#include "{pro_name}.h"
+#include "include/{pro_name}.h"
 
 /*******************************************************************************
  * Mandatory TA functions.
