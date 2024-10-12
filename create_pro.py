@@ -91,12 +91,12 @@ def create_host(parent_dir, pro_name, define_name):
 
 #include "../ta/include/{pro_name}.h"
 
-struct test_ctx {{
+struct {pro_name}_ctx {{
 	TEEC_Context ctx;
 	TEEC_Session sess;
 }};
 
-void prepare_tee_session(struct test_ctx *ctx)
+static void prepare_tee_session(struct {pro_name}_ctx *ctx)
 {{
 	TEEC_UUID uuid = {define_name};
 	uint32_t origin;
@@ -116,7 +116,7 @@ void prepare_tee_session(struct test_ctx *ctx)
 	}}
 }}
 
-void terminate_tee_session(struct test_ctx *ctx)
+static void terminate_tee_session(struct {pro_name}_ctx *ctx)
 {{
 	TEEC_CloseSession(&ctx->sess);
 	TEEC_FinalizeContext(&ctx->ctx);
@@ -124,7 +124,7 @@ void terminate_tee_session(struct test_ctx *ctx)
 
 int main()
 {{
-    struct test_ctx ctx;
+    struct {pro_name}_ctx ctx;
 
     prepare_tee_session(&ctx);
 
