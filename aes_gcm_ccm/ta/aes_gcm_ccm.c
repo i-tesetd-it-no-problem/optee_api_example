@@ -141,7 +141,7 @@ static TEE_Result aes_init(void *sess_ctx, uint32_t param_type, TEE_Param params
 
     /* 确认操作句柄有效 */
     if(ctx->key_op_handle == TEE_HANDLE_NULL) {
-        EMSG("aes_init failed, bat state\n");
+        EMSG("aes_init failed, bad state\n");
         return TEE_ERROR_BAD_STATE;
     }
     
@@ -191,7 +191,7 @@ static TEE_Result aes_encrypt(void *sess_ctx, uint32_t param_type, TEE_Param par
 
     /* 确认操作句柄有效 */
     if(ctx->key_op_handle == TEE_HANDLE_NULL) {
-        EMSG("aes_init failed, bat state\n");
+        EMSG("aes_init failed, bad state\n");
         return TEE_ERROR_BAD_STATE;
     }
 
@@ -254,7 +254,7 @@ static TEE_Result aes_decrypt(void *sess_ctx, uint32_t param_type, TEE_Param par
 
     /* 确认操作句柄有效 */
     if(ctx->key_op_handle == TEE_HANDLE_NULL) {
-        EMSG("aes_init failed, bat state\n");
+        EMSG("aes_init failed, bad state\n");
         return TEE_ERROR_BAD_STATE;
     }
 
