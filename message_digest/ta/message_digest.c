@@ -14,7 +14,7 @@ struct message_digest_ctx {
  * @param alg 算法枚举
  * @return uint8_t 字节大小
  */
-uint8_t get_digest_length(enum msg_digest_alg alg) {
+static uint8_t get_digest_length(enum msg_digest_alg alg) {
     switch (alg) {
         case MESSAGE_DIGEST_ALG_MD5:
             return 16;  // MD5 128 位 = 16 字节

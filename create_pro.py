@@ -16,7 +16,7 @@ def generate_uuid_define(define_name):
     n[::2] = node_bytes
 
     define_str = (
-        f"\n#define {define_name} \\\n\t{{ "
+        f"#define {define_name} \\\n\t{{ "
         f"0x{u.time_low:08x}, "
         f"0x{u.time_mid:04x}, "
         f"0x{u.time_hi_version:04x}, \\\n\t\t{{ "

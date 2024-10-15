@@ -22,14 +22,6 @@ enum msg_digest_alg {
 	MESSAGE_DIGEST_ALG_MAX,
 };
 
-/**
- * @brief 获取对应算法需要的字节数
- * 
- * @param alg 数据摘要算法枚举
- * @return int -1 表示算法不支持, 其他值表示算法对应的字节数
- */
-uint8_t get_digest_length(enum msg_digest_alg alg);
-
 /*
  * TA_MESSAGE_DIGEST_CMD_PREPARE - 初始化摘要算法
  * param[0] (value) - 摘要算法类型 参考enum msg_digest_alg
