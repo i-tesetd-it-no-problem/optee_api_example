@@ -22,7 +22,7 @@
     - 1. 替换`private_key_der`变量为`gen_dh_keypair.py`生成的`dh_key.c`文件中对应算法的私钥
     - 2. 替换`peer_public_key_bytes`变量为第二步获取到的TA生成的密钥对的公钥
     - 3. 修改变量algorithm_type为对应使用的算法类型
-    - 4. 运行脚本,使用`python3 validate_derive_key.py`命令运行脚本,脚本会根据TA的公钥与CA的公钥派生出对称密钥，自行比对对称密钥与第三步获取到的TA派生出的对称密钥是否相同
+    - 4. 运行脚本,使用`python3 validate_derive_key.py`命令运行脚本,脚本会根据TA的公钥与CA的私钥派生出对称密钥，自行比对派生结果与第三步获取到的TA派生出的对称密钥是否相同
 
 ## 注：
 CA/TA代码中已经给出了详细的注释
