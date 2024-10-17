@@ -20,7 +20,7 @@
     - 这一步不符合实际使用使用场景，派生密钥不应该传输,这里只是为了后续验证双方派生的密钥是否相同
  - 验证过程需要自己手动操作, 修改`validate_derive_key.py`脚本，参考其中的修改步骤
     - 1. 替换`private_key_der`变量为`gen_dh_keypair.py`生成的`dh_key.c`文件中对应算法的私钥
-    - 2. 替换`peer_public_key_bytes`变量为第二步获取到的CA生成的密钥对的公钥
+    - 2. 替换`peer_public_key_bytes`变量为第二步获取到的TA生成的密钥对的公钥
     - 3. 修改变量algorithm_type为对应使用的算法类型
     - 4. 运行脚本,使用`python3 validate_derive_key.py`命令运行脚本,脚本会根据TA的公钥与CA的公钥派生出对称密钥，自行比对对称密钥与第三步获取到的TA派生出的对称密钥是否相同
 
