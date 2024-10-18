@@ -42,7 +42,7 @@ static uint32_t get_tee_element(enum dh_algorithm_type type) {
         case DH_ALGORITHM_TYPE_ECDH_P384:   return TEE_ECC_CURVE_NIST_P384;  // NIST P-384 椭圆曲线
         case DH_ALGORITHM_TYPE_ECDH_P521:   return TEE_ECC_CURVE_NIST_P521;  // NIST P-521 椭圆曲线
         case DH_ALGORITHM_TYPE_X25519:      return TEE_ECC_CURVE_25519;      // 25519 椭圆曲线
-        default:                            return 0xFFFFFFFF;              // 未知类型，返回无效值
+        default:                            return TEE_CRYPTO_ELEMENT_NONE;              // 未知类型，返回无效值
     }
 }
 
