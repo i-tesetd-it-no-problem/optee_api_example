@@ -5,6 +5,7 @@
 - [密码学系列](#密码学系列)
   - [推荐(以安全性与效率为参考)](#推荐以安全性与效率为参考)
 - [一些CA的API](#一些ca的api)
+- [时间系列](#时间系列)
 
 # 介绍
 
@@ -129,6 +130,9 @@ python3 create_pro.py test
     - `TEEC_ReleaseSharedMemory`  : 释放共享内存
  - [取消TA调用](client_api/cancel)
     - `TEEC_RequestCancellation`  : CA发起请求取消 OpenSession 或 Invok 调用
-    - `TEE_UnmaskCancellation`    : 解除屏蔽取消标志, 即使TA允许被取消
-    - `TEE_MaskCancellation`      : 屏蔽取消标志, 即不允许TA被取消(默认)
+    - `TEE_UnmaskCancellation`    : 解除屏蔽取消标志, 即, 使TA允许被取消
+    - `TEE_MaskCancellation`      : 屏蔽取消标志, 即, 不允许TA被取消(默认)
     - `TEE_GetCancellationFlag`   : 获取当前取消屏蔽标志
+
+## 时间系列
+ - [安全时间](test_time)

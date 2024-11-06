@@ -111,6 +111,6 @@ int main()
  * /lib/optee_armtz 是OPTEE寻找TA的默认地址
  * /usr/bin 让CA目标文件可以直接当作命令运行
 
- * scp cancel_thread/ta/5d39015c-23c2-4a90-b14b-e7721904f3d0.ta wenshuyu@192.168.1.6:/lib/optee_armtz
- * scp cancel_thread/host/cancel_thread wenshuyu@192.168.1.6:/usr/bin
+ * scp cancel/ta/5d39015c-23c2-4a90-b14b-e7721904f3d0.ta wenshuyu@192.168.1.6:/lib/optee_armtz
+ * scp cancel/host/cancel wenshuyu@192.168.1.6:/usr/bin
  */

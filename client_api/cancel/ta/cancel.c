@@ -36,8 +36,6 @@ static TEE_Result cmd_delay(void __unused *sess_ctx, uint32_t __unused param_typ
     return TEE_SUCCESS;
 }
 
-
-
 /*******************************************************************************
  * Mandatory TA functions.
  ******************************************************************************/
