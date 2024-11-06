@@ -1,9 +1,17 @@
+# 目录
+- [介绍](#介绍)
+- [如何使用 `create_pro.py` 快速新建一个OP-TEE空工程](#如何使用-create_propy-快速新建一个op-tee空工程)
+- [注意](#注意)
+- [密码学系列](#密码学系列)
+  - [推荐(以安全性与效率为参考)](#推荐以安全性与效率为参考)
+- [一些CA的API](#一些ca的api)
+
 # 介绍
 
 本项目为OP-TEE API的所有使用示例, 大部分案例中不止使用一个算法，而是使用了许多同类的算法，因此有许多额外的不相关的函数解决不同算法所需要的要求
 还在逐步更新中...
 
-# 如何使用 *create_pro.py* 快速新建一个OP-TEE空工程
+# 如何使用 `create_pro.py` 快速新建一个OP-TEE空工程
  - 如果使用开发板验证CA/TA，由于每次新建项目都要使用不同的传输命令，为了节省时间, 本脚本会在CA/TA文件末尾自动生成一条指令。使用SSH命令传输CA/TA到开发板，请提前修改`create_pro.py`文件中的`DEFAULT_HOST_NAME`与`DEFAULT_IP`变量
  - 效果如下:
  ```c
@@ -113,3 +121,14 @@ python3 create_pro.py test
  - `消息认证算法`推荐使用 [HMAC系列](Cryptography/hmac_xxx)
  - `密钥交换算法`推荐使用 [ECDH-X25519](Cryptography/ecdh_x25519)
  - 上述某些算法中如果关系到`HASH`算法，则使用的`HASH`摘要长度越长安全性越高，但同时也会增加计算花费时间。自行抉择
+
+## 一些CA/TA的API
+ - [申请/注册共享内存](client_api/shared_mem)
+    - `TEEC_AllocateSharedMemory` : 申请共享内存
+    - `TEEC_RegisterSharedMemory` : 注册共享内存
+    - `TEEC_ReleaseSharedMemory`  : 释放共享内存
+ - [取消TA调用](client_api/cancel)
+    - `TEEC_RequestCancellation`  : CA发起请求取消 OpenSession 或 Invok 调用
+    - `TEE_UnmaskCancellation`    : 解除屏蔽取消标志, 即使TA允许被取消
+    - `TEE_MaskCancellation`      : 屏蔽取消标志, 即不允许TA被取消(默认)
+    - `TEE_GetCancellationFlag`   : 获取当前取消屏蔽标志

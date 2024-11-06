@@ -108,15 +108,13 @@ static void prepare_tee_session(struct {pro_name}_ctx *ctx)
 
 	res = TEEC_InitializeContext(NULL, &ctx->ctx);
 	if (res != TEEC_SUCCESS) {{
-	    printf("TEEC_InitializeContext failed with code 0x%x", res);
-	    exit(0);
+	    errx(1, "TEEC_InitializeContext failed with code 0x%x", res);
 	}}
 
 	res = TEEC_OpenSession(&ctx->ctx, &ctx->sess, &uuid,
 			       TEEC_LOGIN_PUBLIC, NULL, NULL, &origin);
 	if (res != TEEC_SUCCESS) {{
-	    printf("TEEC_Opensession failed with code 0x%x origin 0x%x", res, origin);
-	    exit(0);
+	    errx(1, "TEEC_Opensession failed with code 0x%x origin 0x%x", res, origin);
 	}}
 }}
 
