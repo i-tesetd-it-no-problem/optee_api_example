@@ -2,6 +2,7 @@
 - [介绍](#介绍)
 - [如何使用 `create_pro.py` 快速新建一个OP-TEE空工程](#如何使用-create_propy-快速新建一个op-tee空工程)
 - [注意](#注意)
+- [OpenSSL介绍](#openssl介绍)
 - [密码学系列](#密码学系列)
   - [推荐(以安全性与效率为参考)](#推荐以安全性与效率为参考)
 - [一些CA的API](#一些ca的api)
@@ -88,6 +89,9 @@ python3 create_pro.py test
 ## 注意:
 如要验证某个算法案例，请先将对应的工程移到根目录下，然后再运行`make -C [project_name]`
 
+## OpenSSL介绍
+ - [OpenSSL介绍](openssl/README.md)
+
 ## 密码学系列
  - [AES-ECB-NOPAD](Cryptography/aes_ecb_nopad)
  - [AES-CBC-NOPAD](Cryptography/aes_cbc_nopad)
@@ -116,6 +120,7 @@ python3 create_pro.py test
 
 ### 推荐(以安全性与效率为参考)
  - `对称加密[认证加密]算法`推荐使用 [AES-GCM](Cryptography/aes_gcm)
+ - `对称加密[认证加密]算法`推荐使用 [AES-CCM](Cryptography/aes_ccm)
  - `非对称加密算法`推荐使用 [RSAES-PKCS1-OAEP-MGF1系列](Cryptography/rsaes_pkcs1_oaep_mgf1_xxx)
  - `签名算法`推荐使用 1 : RSA签名 : [RSASSA-PKCS1-PSS-MGF1系列](Cryptography/rsassa_pkcs1_pss_mgf1_xxx)
  - `签名算法`推荐使用 2 : 椭圆曲线签名 : [ED25519](Cryptography/ed25519)
