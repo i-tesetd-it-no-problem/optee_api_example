@@ -8,8 +8,8 @@
 
 #define OBJECT_SIZE		(256)
 
-char *name_2 = "secure_storage_old";
-char *name_1 = "secure_storage_new";
+char *name_1 = "secure_storage_old";
+char *name_2 = "secure_storage_new";
 
 char *message = "Hello, secure storage!";
 
@@ -24,7 +24,7 @@ typedef enum {
 	TEE_DATA_SEEK_END = 2
 } TEE_Whence;
 
-static void create_object(struct secure_storage_ctx *ctx)
+static void obj_create(struct secure_storage_ctx *ctx)
 {
 	TEEC_Result res;
 	uint32_t err_origin;
@@ -42,6 +42,23 @@ static void create_object(struct secure_storage_ctx *ctx)
 	}
 }
 
+static void obj_open(struct secure_storage_ctx *ctx)
+{
+	TEEC_Result res;
+	uint32_t err_origin;
+	TEEC_Operation op;
+
+	memset(&op, 0, sizeof(op));
+	op.paramTypes = TEEC_PARAM_TYPES(TEEC_MEMREF_TEMP_INPUT, TEEC_VALUE_INPUT, TEEC_NONE, TEEC_NONE);
+	op.params[0].tmpref.buffer = name_1;
+	op.params[0].tmpref.size = strlen(name_1) + 1;
+
+	res = TEEC_InvokeCommand(&ctx->sess, SECURE_STORAGE_CMD_OPEN, &op, &err_origin);
+	if(res != TEEC_SUCCESS) {
+		errx(1, "Object obj_open failed with code 0x%x origin 0x%x", res, err_origin);
+	}
+}
+
 static void obj_rename(struct secure_storage_ctx *ctx)
 {
 	TEEC_Result res;
@@ -52,19 +69,22 @@ static void obj_rename(struct secure_storage_ctx *ctx)
 	op.paramTypes = TEEC_PARAM_TYPES(TEEC_MEMREF_TEMP_INPUT, TEEC_MEMREF_TEMP_INPUT, TEEC_NONE, TEEC_NONE);
 	op.params[0].tmpref.buffer = name_1;
 	op.params[0].tmpref.size = strlen(name_1) + 1;
-	op.params[1].tmpref.buffer = name_2;
-	op.params[1].tmpref.size = strlen(name_2) + 1;
+	op.params[1].tmpref.buffer = name_1;
+	op.params[1].tmpref.size = strlen(name_1) + 1;
 
 	res = TEEC_InvokeCommand(&ctx->sess, SECURE_STORAGE_CMD_RENAME, &op, &err_origin);
-	if(res != TEEC_SUCCESS) {
-		printf("obj_rename failed with code 0x%x origin 0x%x\n", res, err_origin);
+	if(res == TEEC_ERROR_ACCESS_CONFLICT) {
+		printf("the destinated object name is already existed\n\n");
 		return;
-	}
+	}else if(res != TEEC_SUCCESS) {
+		printf("obj_rename failed with code 0x%x origin 0x%x\n\n", res, err_origin);
+		return;
+	} 
 
-	printf("obj_rename success\n");
+	printf("obj_rename success\n\n");
 }
 
-static void write(struct secure_storage_ctx *ctx)
+static void obj_write(struct secure_storage_ctx *ctx)
 {
 	TEEC_Result res;
 	uint32_t err_origin;
@@ -72,20 +92,20 @@ static void write(struct secure_storage_ctx *ctx)
 
 	memset(&op, 0, sizeof(op));
 	op.paramTypes = TEEC_PARAM_TYPES(TEEC_MEMREF_TEMP_INPUT, TEEC_MEMREF_TEMP_INPUT, TEEC_NONE, TEEC_NONE);
-	op.params[0].tmpref.buffer = name_2;
-	op.params[0].tmpref.size = strlen(name_2) + 1;
+	op.params[0].tmpref.buffer = name_1;
+	op.params[0].tmpref.size = strlen(name_1) + 1;
 	op.params[1].tmpref.buffer = message;
 	op.params[1].tmpref.size = strlen(message) + 1;
 
 	res = TEEC_InvokeCommand(&ctx->sess, SECURE_STORAGE_CMD_WRITE, &op, &err_origin);
 	if(res != TEEC_SUCCESS) {
-		errx(1, "write failed with code 0x%x origin 0x%x", res, err_origin);
+		errx(1, "obj_write failed with code 0x%x origin 0x%x", res, err_origin);
 	}
 
-	printf("write success\n");
+	printf("obj_write success\n\n");
 }
 
-static void seek(struct secure_storage_ctx *ctx, uint32_t offset, TEE_Whence whence)
+static void obj_seek(struct secure_storage_ctx *ctx, uint32_t offset, TEE_Whence whence)
 {
 	TEEC_Result res;
 	uint32_t err_origin;
@@ -93,20 +113,20 @@ static void seek(struct secure_storage_ctx *ctx, uint32_t offset, TEE_Whence whe
 
 	memset(&op, 0, sizeof(op));
 	op.paramTypes = TEEC_PARAM_TYPES(TEEC_MEMREF_TEMP_INPUT, TEEC_VALUE_INPUT, TEEC_NONE, TEEC_NONE);
-	op.params[0].tmpref.buffer = name_2;
-	op.params[0].tmpref.size = strlen(name_2) + 1;
+	op.params[0].tmpref.buffer = name_1;
+	op.params[0].tmpref.size = strlen(name_1) + 1;
 	op.params[1].value.a = offset;
 	op.params[1].value.b = whence;
 
 	res = TEEC_InvokeCommand(&ctx->sess, SECURE_STORAGE_CMD_SEEK, &op, &err_origin);
 	if(res != TEEC_SUCCESS) {
-		errx(1, "seek failed with code 0x%x origin 0x%x", res, err_origin);
+		errx(1, "obj_seek failed with code 0x%x origin 0x%x", res, err_origin);
 	}
 
-	printf("seek success\n");
+	printf("obj_seek success\n\n");
 }
 
-static void read(struct secure_storage_ctx *ctx)
+static void obj_read(struct secure_storage_ctx *ctx)
 {
 	TEEC_Result res;
 	uint32_t err_origin;
@@ -115,24 +135,40 @@ static void read(struct secure_storage_ctx *ctx)
 
 	memset(&op, 0, sizeof(op));
 	op.paramTypes = TEEC_PARAM_TYPES(TEEC_MEMREF_TEMP_INPUT, TEEC_MEMREF_TEMP_OUTPUT, TEEC_NONE, TEEC_NONE);
-	op.params[0].tmpref.buffer = name_2;
-	op.params[0].tmpref.size = strlen(name_2) + 1;
+	op.params[0].tmpref.buffer = name_1;
+	op.params[0].tmpref.size = strlen(name_1) + 1;
 	op.params[1].tmpref.buffer = read_buf;
 	op.params[1].tmpref.size = OBJECT_SIZE;
 
 	res = TEEC_InvokeCommand(&ctx->sess, SECURE_STORAGE_CMD_READ, &op, &err_origin);
 	if(res != TEEC_SUCCESS) {
-		errx(1, "read failed with code 0x%x origin 0x%x", res, err_origin);
+		errx(1, "obj_read failed with code 0x%x origin 0x%x", res, err_origin);
 	}
 
-	printf("read success\n");
+	printf("obj_read success\n\n");
 	for(int i = 0; i < op.params[1].tmpref.size; i++)	{
 		printf("%c", read_buf[i]);
 	}
-	printf("\n");
+	printf("\n\n");
 }
 
-static void delete(struct secure_storage_ctx *ctx)
+static void obj_close(struct secure_storage_ctx *ctx)
+{
+	TEEC_Result res;
+	uint32_t err_origin;
+	TEEC_Operation op;
+
+	memset(&op, 0, sizeof(op));
+
+	res = TEEC_InvokeCommand(&ctx->sess, SECURE_STORAGE_CMD_CLOSE, &op, &err_origin);
+	if(res != TEEC_SUCCESS) {
+		errx(1, "obj_close failed with code 0x%x origin 0x%x", res, err_origin);
+	}
+
+	printf("obj_close success\n\n");
+}
+
+static void obj_delete(struct secure_storage_ctx *ctx)
 {
 	TEEC_Result res;
 	uint32_t err_origin;
@@ -140,27 +176,32 @@ static void delete(struct secure_storage_ctx *ctx)
 
 	memset(&op, 0, sizeof(op));
 	op.paramTypes = TEEC_PARAM_TYPES(TEEC_MEMREF_TEMP_INPUT, TEEC_NONE, TEEC_NONE, TEEC_NONE);
-	op.params[0].tmpref.buffer = name_2;
-	op.params[0].tmpref.size = strlen(name_2) + 1;
+	op.params[0].tmpref.buffer = name_1;
+	op.params[0].tmpref.size = strlen(name_1) + 1;
 
 	res = TEEC_InvokeCommand(&ctx->sess, SECURE_STORAGE_CMD_DELETE, &op, &err_origin);
 	if(res != TEEC_SUCCESS) {
-		errx(1, "delete failed with code 0x%x origin 0x%x", res, err_origin);
+		errx(1, "obj_delete failed with code 0x%x origin 0x%x", res, err_origin);
 	}
 
-	printf("delete success\n");
+	printf("obj_delete success\n\n");
 }
 
 static void example(struct secure_storage_ctx *ctx)
 {
-	create_object(ctx);
-	obj_rename(ctx);
-	write(ctx);
-	seek(ctx, 0, TEE_DATA_SEEK_SET);
-	read(ctx);
-	seek(ctx, 7, TEE_DATA_SEEK_SET);
-	read(ctx);
-	delete(ctx);
+	obj_create(ctx);
+	// obj_rename(ctx);
+
+	obj_open(ctx);
+	obj_write(ctx);
+	obj_seek(ctx, 0, TEE_DATA_SEEK_SET);
+	obj_read(ctx);
+
+	obj_seek(ctx, 7, TEE_DATA_SEEK_SET);
+	obj_read(ctx);
+	obj_close(ctx);
+
+	obj_delete(ctx);
 }
 
 static void prepare_tee_session(struct secure_storage_ctx *ctx)

@@ -16,6 +16,16 @@
 #define SECURE_STORAGE_CMD_CREATE			0
 
 /* 
+ * @brief : open a persistent object in TEE
+ *
+ * param[0] (memerf-input) 		: object name
+ * param[1] (unsued)
+ * param[2] (unsued)
+ * param[3] (unsued)
+ */
+#define SECURE_STORAGE_CMD_OPEN				1
+
+/* 
  * @brief : rename a persistent object
  *
  * param[0] (memerf-input) 		: origin name of the object
@@ -23,7 +33,7 @@
  * param[2] (unsued)
  * param[3] (unsued)
  */
-#define SECURE_STORAGE_CMD_RENAME			1
+#define SECURE_STORAGE_CMD_RENAME			2
 
 /* 
  * @brief : seek
@@ -33,7 +43,7 @@
  * param[2] (unsued)
  * param[3] (unsued)
  */
-#define SECURE_STORAGE_CMD_SEEK				2
+#define SECURE_STORAGE_CMD_SEEK				3
 
 /* 
  * @brief : write data to a persistent object
@@ -43,7 +53,7 @@
  * param[2] (unsued)
  * param[3] (unsued)
  */
-#define SECURE_STORAGE_CMD_WRITE			3
+#define SECURE_STORAGE_CMD_WRITE			4
 
 /* 
  * @brief : read data from a persistent object
@@ -53,8 +63,18 @@
  * param[2] (unsued)
  * param[3] (unsued)
  */
-#define SECURE_STORAGE_CMD_READ				4
+#define SECURE_STORAGE_CMD_READ				5
 
+
+/* 
+ * @brief : close a persistent object
+ *
+ * param[0] (unsued)
+ * param[1] (unsued)
+ * param[2] (unsued)
+ * param[3] (unsued)
+ */
+#define SECURE_STORAGE_CMD_CLOSE			6
 
 /* 
  * @brief : delete a persistent object
@@ -64,6 +84,6 @@
  * param[2] (unsued)
  * param[3] (unsued)
  */
-#define SECURE_STORAGE_CMD_DELETE			5
+#define SECURE_STORAGE_CMD_DELETE			7
 
 #endif /* _SECURE_STORAGE_H */
