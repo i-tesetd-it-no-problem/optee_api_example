@@ -86,4 +86,24 @@
  */
 #define SECURE_STORAGE_CMD_DELETE			7
 
+/* 
+ * @brief : check a persistent object exist
+ *
+ * param[0] (memerf-input)		: object name
+ * param[1] (unsued)
+ * param[2] (unsued)
+ * param[3] (unsued)
+ */
+#define SECURE_STORAGE_CMD_EXISTS     		8
+
+/* 
+ * @brief : get all object data
+ *
+ * param[0] (memerf-input)		: object name
+ * param[1] (memerf-output)		: onject size
+ * param[2] (unsued)
+ * param[3] (unsued)
+ */
+#define SECURE_STORAGE_CMD_GET_ALL   		9
+
 #endif /* _SECURE_STORAGE_H */

@@ -121,6 +121,49 @@ static TEE_Result open_persistent_object(struct secure_storage_ctx *ctx, uint8_t
 }
 
 /**********************************File Operation**********************************/
+static TEE_Result obj_exists(void *sess_ctx, uint32_t param_type, TEE_Param params[4])
+{
+    struct secure_storage_ctx *ctx = (struct secure_storage_ctx *)sess_ctx;
+    TEE_Result res;
+    
+    uint32_t exp_param_type = TEE_PARAM_TYPES(TEE_PARAM_TYPE_MEMREF_INPUT, 
+                                             TEE_PARAM_TYPE_NONE,
+                                             TEE_PARAM_TYPE_NONE,
+                                             TEE_PARAM_TYPE_NONE);
+    if (param_type != exp_param_type) {
+        EMSG("param type error for obj_exists\n");
+        return TEE_ERROR_BAD_PARAMETERS;
+    }
+
+    uint32_t obj_id_len = params[0].memref.size;
+    uint8_t *obj_id = TEE_Malloc(obj_id_len, TEE_MALLOC_FILL_ZERO);
+    if (!obj_id) {
+        EMSG("out of memory in obj_exists\n");
+        return TEE_ERROR_OUT_OF_MEMORY;
+    }
+
+    TEE_MemMove(obj_id, params[0].memref.buffer, obj_id_len);
+
+    res = TEE_AllocatePersistentObjectEnumerator(&ctx->enum_handle);
+    if (res != TEE_SUCCESS) {
+        EMSG("Failed to allocate enumerator in obj_exists, res: 0x%x\n", res);
+        TEE_Free(obj_id);
+        return res;
+    }
+
+    res = check_object_exists(ctx, obj_id, obj_id_len);
+    TEE_Free(obj_id);
+    free_enum_handle(ctx);
+
+    if (res == TEE_SUCCESS) 
+        return TEE_SUCCESS;
+    else if (res == TEE_ERROR_ITEM_NOT_FOUND) 
+        return TEE_ERROR_ITEM_NOT_FOUND;
+    else {
+        EMSG("Error checking object existence, res: 0x%x\n", res);
+        return res;
+    }
+}
 
 static TEE_Result obj_create(void *sess_ctx, uint32_t param_type, TEE_Param params[4])
 {
@@ -204,7 +247,7 @@ static TEE_Result obj_open(void *sess_ctx, uint32_t param_type, TEE_Param params
 
     struct secure_storage_ctx *ctx = (struct secure_storage_ctx *)sess_ctx;
 
-    uint32_t exp_param_type = TEE_PARAM_TYPES(TEE_PARAM_TYPE_MEMREF_INPUT, TEE_PARAM_TYPE_VALUE_INPUT,
+    uint32_t exp_param_type = TEE_PARAM_TYPES(TEE_PARAM_TYPE_MEMREF_INPUT, TEE_PARAM_TYPE_NONE,
                                               TEE_PARAM_TYPE_NONE, TEE_PARAM_TYPE_NONE);
     if (param_type != exp_param_type) {
         EMSG("param type error\n\n");
@@ -395,6 +438,88 @@ err_free_data:
     return res;
 }
 
+static TEE_Result obj_get_all(void *sess_ctx, uint32_t param_type, TEE_Param params[4])
+{
+    struct secure_storage_ctx *ctx = (struct secure_storage_ctx *)sess_ctx;
+    TEE_Result res;
+
+    uint32_t exp_param_type = TEE_PARAM_TYPES(
+        TEE_PARAM_TYPE_MEMREF_INPUT,
+        TEE_PARAM_TYPE_MEMREF_OUTPUT,
+        TEE_PARAM_TYPE_NONE,
+        TEE_PARAM_TYPE_NONE
+    );
+
+    if (param_type != exp_param_type) {
+        EMSG("Parameter type error: obj_get_all\n");
+        return TEE_ERROR_BAD_PARAMETERS;
+    }
+
+    uint32_t obj_id_len = params[0].memref.size;
+    uint8_t *obj_id = TEE_Malloc(obj_id_len, TEE_MALLOC_FILL_ZERO);
+    if (!obj_id) {
+        EMSG("Memory allocation failed: obj_get_all\n");
+        return TEE_ERROR_OUT_OF_MEMORY;
+    }
+
+    TEE_MemMove(obj_id, params[0].memref.buffer, obj_id_len);
+    res = open_persistent_object(ctx, obj_id, obj_id_len);
+    TEE_Free(obj_id);
+
+    if (res != TEE_SUCCESS) {
+        EMSG("Failed to open object: obj_get_all, res: 0x%x\n", res);
+        return res;
+    }
+
+    TEE_ObjectInfo obj_info;
+    res = TEE_GetObjectInfo1(ctx->persistant_object, &obj_info);
+    if (res != TEE_SUCCESS) {
+        EMSG("Failed to get object info: obj_get_all, res: 0x%x\n", res);
+        close_persistent_object(ctx);
+        return res;
+    }
+
+    uint32_t data_size = obj_info.dataSize;
+    uint8_t *data_buffer = TEE_Malloc(data_size, TEE_MALLOC_FILL_ZERO);
+    if (!data_buffer) {
+        EMSG("Memory allocation failed for data_buffer: obj_get_all\n");
+        close_persistent_object(ctx);
+        return TEE_ERROR_OUT_OF_MEMORY;
+    }
+
+    uint32_t read_bytes = 0;
+    res = TEE_ReadObjectData(ctx->persistant_object, data_buffer, data_size, &read_bytes);
+    if (res != TEE_SUCCESS) {
+        EMSG("Failed to read object data: obj_get_all, res: 0x%x\n", res);
+        TEE_Free(data_buffer);
+        close_persistent_object(ctx);
+        return res;
+    }
+
+    if (read_bytes != data_size) {
+        EMSG("Mismatch in read bytes: obj_get_all, expected: %u, read: %u\n", data_size, read_bytes);
+        TEE_Free(data_buffer);
+        close_persistent_object(ctx);
+        return TEE_ERROR_GENERIC;
+    }
+
+    if (params[1].memref.size < data_size) {
+        EMSG("Output buffer too small: obj_get_all, expected: %u, provided: %u\n", data_size, params[1].memref.size);
+        TEE_Free(data_buffer);
+        close_persistent_object(ctx);
+        return TEE_ERROR_SHORT_BUFFER;
+    }
+
+    TEE_MemMove(params[1].memref.buffer, data_buffer, data_size);
+    params[1].memref.size = read_bytes;
+
+    TEE_Free(data_buffer);
+    close_persistent_object(ctx);
+
+    return TEE_SUCCESS;
+}
+
+
 static TEE_Result obj_close(void *sess_ctx, uint32_t param_type, TEE_Param params[4])
 {
     (void)params;
@@ -524,6 +649,12 @@ TEE_Result TA_InvokeCommandEntryPoint(void *sess_ctx, uint32_t cmd, uint32_t par
 
         case SECURE_STORAGE_CMD_DELETE:
             return obj_delete(sess_ctx, param_type, params);
+
+        case SECURE_STORAGE_CMD_EXISTS:
+            return obj_exists(sess_ctx, param_type, params);
+        
+        case SECURE_STORAGE_CMD_GET_ALL:
+            return obj_get_all(sess_ctx, param_type, params);
 
         default:
             return TEE_ERROR_BAD_PARAMETERS;

@@ -49,7 +49,7 @@ static void obj_open(struct secure_storage_ctx *ctx)
 	TEEC_Operation op;
 
 	memset(&op, 0, sizeof(op));
-	op.paramTypes = TEEC_PARAM_TYPES(TEEC_MEMREF_TEMP_INPUT, TEEC_VALUE_INPUT, TEEC_NONE, TEEC_NONE);
+	op.paramTypes = TEEC_PARAM_TYPES(TEEC_MEMREF_TEMP_INPUT, TEEC_NONE, TEEC_NONE, TEEC_NONE);
 	op.params[0].tmpref.buffer = name_1;
 	op.params[0].tmpref.size = strlen(name_1) + 1;
 
