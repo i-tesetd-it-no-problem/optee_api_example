@@ -87,6 +87,11 @@ python3 create_pro.py test
 
 ## 注意:
 如要验证某个算法案例，请先将对应的工程移到根目录下，然后再运行`make -C [project_name]`
+可以使用如下命令生成clangd配置文件
+```shell
+pip install compiledb # 先安装compiledb
+compiledb -n make -C [project_name] # 生成clangd配置文件compile_commands.json
+```
 
 ## OpenSSL介绍
  - [OpenSSL介绍](openssl/README.md)
